@@ -1,9 +1,13 @@
 import math
 
 # operations on 3-tuples
+
 def add(v1, v2):
     return tuple(v1[i] + v2[i] for i in range(3))
 
+def subtract(v1, v2):
+    return tuple(v1[i] - v2[i] for i in range(3))
+    
 def scale(v, a):
     return tuple(a * v[i] for i in range(3))
 
@@ -22,4 +26,9 @@ def length(v):
     return math.sqrt(squared_length(v))
     
 def normalize(v):
+    if length(v) == 0:
+        return (0, 0, 0)
     return scale(v, 1/length(v))
+
+def gamma_correct(v, gamma):
+    return tuple(v[i]**(1.0/gamma) for i in range(3))

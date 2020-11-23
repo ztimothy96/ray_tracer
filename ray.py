@@ -1,5 +1,13 @@
 import math
+import random
 import vec3
+
+# t is a number, while p and normal are vectors 
+class HitRecord():
+    def __init__(self):
+        self.t = None
+        self.p = None
+        self.normal = None
 
 '''
 params:
@@ -13,12 +21,71 @@ class Ray():
 
     # t is a scalar parameter
     def point_at_time(self, t):
-        return self.origin + Vec3.scale(direction, t)
+        return vec3.add(self.origin, vec3.scale(self.direction, t))
 
-    def hit_sphere(self, center, radius):
-        oc = vec3.add(self.origin, vec3.scale(center, -1))
-        a = vec3.length(self.direction)
-        b = 2.0 * vec3.dot(oc, self.direction)
-        c = vec3.length(oc) - radius**2
-        discriminant = b**2 - 4*a*c
-        return discriminant > 0
+
+class Sphere():
+    def __init__(self, center, radius):
+        self.center = center
+        self.radius = radius
+
+
+    # problem here; all the normals are 0, 0, 1
+    # ok something is very weird... record.p is a 6-tuple?
+    # am I extending tuples when I want to add them somewhere? in ray...
+    def hit(self, ray, t_min, t_max):
+        record = HitRecord()
+        oc = vec3.subtract(ray.origin, self.center)
+        a = vec3.squared_length(ray.direction)
+        b = vec3.dot(oc, ray.direction)
+        c = vec3.squared_length(oc) - self.radius**2
+        discriminant = b**2 - a*c
+        if discriminant > 0:
+            t = (-b-math.sqrt(discriminant))/a
+            if (t < t_max and t > t_min):
+                record.t = t
+                record.p = ray.point_at_time(t)
+                record.normal = vec3.normalize(
+                    vec3.subtract(record.p, self.center))
+                return record
+        return None
+
+
+# looks fine
+class HitableList():
+    def __init__(self, hitables):
+        self.hitables = hitables
+
+    def hit(self, ray, t_min, t_max):
+        closest_record = HitRecord()
+        hit_anything = False
+        closest = t_max
+        for i in range(len(self.hitables)):
+            record = self.hitables[i].hit(ray, t_min, closest)
+            if record:
+                hit_anything = True
+                closest = record.t
+                closest_record = record
+        return closest_record if hit_anything else None
+
+
+def rand_sphere():
+    p = (random.gauss(0, 1), random.gauss(0, 1), random.gauss(0, 1))
+    return vec3.normalize(p)
+
+class Camera():
+    def __init__(self,llc,horizontal,vertical, origin):
+        self.llc= llc
+        self.horizontal =horizontal
+        self.vertical = vertical
+        self.origin = origin
+
+    def get_ray(self, u, v):
+        up = vec3.scale(self.vertical, v)
+        right = vec3.scale(self.horizontal, u)
+        direction = vec3.subtract(self.llc, self.origin)
+        direction = vec3.add(direction, up)
+        direction = vec3.add(direction, right)
+        return Ray(self.origin, direction)
+                 
+    

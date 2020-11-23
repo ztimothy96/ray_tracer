@@ -1,13 +1,11 @@
 import math
-import random
 import vec3
 
-# t is a number, while p and normal are vectors 
 class HitRecord():
     def __init__(self):
-        self.t = None
-        self.p = None
-        self.normal = None
+        self.t = None # float: the time the ray hits
+        self.p = None # vec3: the point that the ray hits
+        self.normal = None # vec3: the normal vector to the hitpoint
 
 '''
 params:
@@ -69,10 +67,6 @@ class HitableList():
         return closest_record if hit_anything else None
 
 
-def rand_sphere():
-    p = (random.gauss(0, 1), random.gauss(0, 1), random.gauss(0, 1))
-    return vec3.normalize(p)
-
 class Camera():
     def __init__(self,llc,horizontal,vertical, origin):
         self.llc= llc
@@ -87,5 +81,4 @@ class Camera():
         direction = vec3.add(direction, up)
         direction = vec3.add(direction, right)
         return Ray(self.origin, direction)
-                 
     

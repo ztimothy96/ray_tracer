@@ -1,4 +1,5 @@
 import math
+import random
 
 # operations on 3-tuples
 
@@ -32,3 +33,7 @@ def normalize(v):
 
 def gamma_correct(v, gamma):
     return tuple(v[i]**(1.0/gamma) for i in range(3))
+
+def rand_sphere():
+    p = (random.gauss(0, 1), random.gauss(0, 1), random.gauss(0, 1))
+    return normalize(p)

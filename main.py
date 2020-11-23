@@ -25,19 +25,22 @@ camera = Camera(llc, horizontal, vertical, origin)
 ball = Sphere((0.0, 0.0, -1.0), 0.5)
 earth = Sphere((0.0, -100.5, -1.0), 100.0)
 world = HitableList([ball, earth])
+eps = 0.001 # threshold for hitting object with a ray
 
 def from_rgb(rgb):
-    """translates an rgb tuple of int to a tkinter friendly color code
-    """
+    #translates an rgb tuple of int to a tkinter friendly color code
     return "#%02x%02x%02x" % rgb
 
 # world contains the hitable objects
 def color(ray, world):
-    record = world.hit(ray, 0.0, float('inf'))
+    record = world.hit(ray, eps, float('inf'))
     if record:
-        # return (1, 0, 0)
-        # print(record.normal)
-        return vec3.scale(vec3.add(record.normal, (1.0, 1.0, 1.0)), 0.5)
+        # camera receives color from a ray scattered randomly off surface
+        target =vec3.add(
+            vec3.add(record.p, record.normal),
+            vec3.rand_sphere())
+        new_ray = Ray(record.p, vec3.subtract(target, record.p))
+        return vec3.scale(color(new_ray, world), 0.5)
     unit = vec3.normalize(ray.direction)
     t = 0.5 * (unit[1] + 1.0)
     c1 = vec3.scale((1.0, 1.0, 1.0), 1.0 - t)
@@ -48,12 +51,14 @@ def color(ray, world):
 def draw():
     for j in range(height):
         for i in range(width):
-            u, v = float(i) / float(width), float(j) / float(height)
             col = (0, 0, 0)
             for _ in range(n_samples):
+                u = float(i + random.random()) / float(width)
+                v = float(j + random.random()) / float(height)
                 ray = camera.get_ray(u, v)
                 col = vec3.add(col, color(ray, world))
             col = vec3.scale(col, 1.0/n_samples)
+            col = vec3.gamma_correct(col, 2.0)
             ir = int(255.99 * col[0])
             ig = int(255.99 * col[1])
             ib = int(255.99 * col[2])

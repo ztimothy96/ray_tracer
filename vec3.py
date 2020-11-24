@@ -8,12 +8,15 @@ def add(v1, v2):
 
 def subtract(v1, v2):
     return tuple(v1[i] - v2[i] for i in range(3))
-    
+
+def mult(v1, v2):
+    return tuple(v1[i] * v2[i] for i in range(3))
+
 def scale(v, a):
     return tuple(a * v[i] for i in range(3))
 
 def dot(v1, v2):
-    return sum(tuple(v1[i] * v2[i] for i in range(3)))
+    return sum(mult(v1, v2))
 
 def cross(v1, v2):
     return (v1[1] * v2[2] - v1[2] * v2[1],
@@ -37,3 +40,6 @@ def gamma_correct(v, gamma):
 def rand_sphere():
     p = (random.gauss(0, 1), random.gauss(0, 1), random.gauss(0, 1))
     return normalize(p)
+
+def reflect(v, n):
+    return subtract(v, scale(n,2*dot(v, n)))

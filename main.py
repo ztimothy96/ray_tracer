@@ -2,7 +2,8 @@ import random
 import math
 from tkinter import Tk, Canvas, PhotoImage, mainloop
 import vec3
-from ray import Ray, Sphere, HitableList, HitRecord, Camera
+from ray import *
+from materials import *
 
 # canvas setup
 width = 400
@@ -22,9 +23,10 @@ n_samples = 10
 camera = Camera(llc, horizontal, vertical, origin)
 
 # world setup
-ball = Sphere((0.0, 0.0, -1.0), 0.5)
-earth = Sphere((0.0, -100.5, -1.0), 100.0)
-world = HitableList([ball, earth])
+diffuse = Sphere((0.0, 0.0, -1.0), 0.5, Lambertian((0.8, 0.3, 0.3)))
+metal = Sphere((1.0, 0.0, -1.0), 0.5, Metal((0.8, 0.6, 0.2)))
+earth = Sphere((0.0, -100.5, -1.0), 100.0, Lambertian((0.8, 0.8, 0.0)))
+world = HitableList([diffuse, metal, earth])
 eps = 0.001 # threshold for hitting object with a ray
 
 def from_rgb(rgb):
@@ -32,15 +34,14 @@ def from_rgb(rgb):
     return "#%02x%02x%02x" % rgb
 
 # world contains the hitable objects
-def color(ray, world):
+def color(ray, world, depth):
     record = world.hit(ray, eps, float('inf'))
     if record:
         # camera receives color from a ray scattered randomly off surface
-        target =vec3.add(
-            vec3.add(record.p, record.normal),
-            vec3.rand_sphere())
-        new_ray = Ray(record.p, vec3.subtract(target, record.p))
-        return vec3.scale(color(new_ray, world), 0.5)
+        if (depth < 10):
+            scattered = record.material.scatter(ray, record)
+            if scattered:
+                return vec3.mult(color(scattered, world, depth+1), record.material.attenuation)
     unit = vec3.normalize(ray.direction)
     t = 0.5 * (unit[1] + 1.0)
     c1 = vec3.scale((1.0, 1.0, 1.0), 1.0 - t)
@@ -56,7 +57,7 @@ def draw():
                 u = float(i + random.random()) / float(width)
                 v = float(j + random.random()) / float(height)
                 ray = camera.get_ray(u, v)
-                col = vec3.add(col, color(ray, world))
+                col = vec3.add(col, color(ray, world, 1))
             col = vec3.scale(col, 1.0/n_samples)
             col = vec3.gamma_correct(col, 2.0)
             ir = int(255.99 * col[0])

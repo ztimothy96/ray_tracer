@@ -6,6 +6,7 @@ class HitRecord():
         self.t = None # float: the time the ray hits
         self.p = None # vec3: the point that the ray hits
         self.normal = None # vec3: the normal vector to the hitpoint
+        self.material = None
 
 '''
 params:
@@ -23,14 +24,11 @@ class Ray():
 
 
 class Sphere():
-    def __init__(self, center, radius):
+    def __init__(self, center, radius, material):
         self.center = center
         self.radius = radius
+        self.material = material
 
-
-    # problem here; all the normals are 0, 0, 1
-    # ok something is very weird... record.p is a 6-tuple?
-    # am I extending tuples when I want to add them somewhere? in ray...
     def hit(self, ray, t_min, t_max):
         record = HitRecord()
         oc = vec3.subtract(ray.origin, self.center)
@@ -45,6 +43,7 @@ class Sphere():
                 record.p = ray.point_at_time(t)
                 record.normal = vec3.normalize(
                     vec3.subtract(record.p, self.center))
+                record.material = self.material
                 return record
         return None
 
@@ -81,4 +80,3 @@ class Camera():
         direction = vec3.add(direction, up)
         direction = vec3.add(direction, right)
         return Ray(self.origin, direction)
-    

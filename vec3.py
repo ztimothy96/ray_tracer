@@ -43,3 +43,14 @@ def rand_sphere():
 
 def reflect(v, n):
     return subtract(v, scale(n,2*dot(v, n)))
+
+def refract(v, n, idx_ratio):
+    uv= normalize(v)
+    dt = dot(uv, n)
+    discriminant = 1.0 - idx_ratio**2 * (1 - dt**2)
+    if discriminant > 0:
+        refracted = scale(subtract(uv, scale(n, dt)), idx_ratio)
+        refracted = subtract(refracted, scale(n, math.sqrt(discriminant)))
+        return refracted
+    return None
+        

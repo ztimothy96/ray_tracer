@@ -15,7 +15,7 @@ img = PhotoImage(width=width, height=height)
 canvas.create_image((width//2, height//2), image=img, state="normal")
 
 # camera setup
-origin = (0.0, 0.0, 0.0)
+origin = (0.0, 1.0, 0.0)
 lookat = (0.0, 0.0, -1.0)
 up = (0.0, 1.0, 0.0)
 fov = 90
@@ -26,8 +26,9 @@ n_samples = 10
 # world setup
 diffuse = Sphere((0.0, 0.0, -1.0), 0.5, Lambertian((0.8, 0.3, 0.3)))
 metal = Sphere((1.0, 0.0, -1.0), 0.5, Metal((0.8, 0.6, 0.2)))
+glass = Sphere((-1.0, 0.0, -1.0), 0.5, Dielectric(1.5))
 earth = Sphere((0.0, -100.5, -1.0), 100.0, Lambertian((0.8, 0.8, 0.0)))
-world = HitableList([diffuse, metal, earth])
+world = HitableList([diffuse, metal, earth, glass])
 eps = 0.001 # threshold for hitting object with a ray
 
 def from_rgb(rgb):

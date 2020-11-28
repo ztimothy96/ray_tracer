@@ -15,12 +15,13 @@ img = PhotoImage(width=width, height=height)
 canvas.create_image((width//2, height//2), image=img, state="normal")
 
 # camera setup
-llc = (-2.0, -1.0, -1.0)
-horizontal = (4.0, 0.0, 0.0)
-vertical = (0.0, 2.0, 0.0)
 origin = (0.0, 0.0, 0.0)
+lookat = (0.0, 0.0, -1.0)
+up = (0.0, 1.0, 0.0)
+fov = 90
+aspect = width/height
+camera = Camera(origin, lookat, up, fov, aspect)
 n_samples = 10
-camera = Camera(llc, horizontal, vertical, origin)
 
 # world setup
 diffuse = Sphere((0.0, 0.0, -1.0), 0.5, Lambertian((0.8, 0.3, 0.3)))
@@ -64,5 +65,6 @@ def draw():
             ig = int(255.99 * col[1])
             ib = int(255.99 * col[2])
             img.put(from_rgb((ir, ig, ib)), (i, height-j-1))
+        print('drew row ' + str(j))
 draw()
 mainloop()

@@ -67,12 +67,31 @@ class HitableList():
 
 
 class Camera():
-    def __init__(self,llc,horizontal,vertical, origin):
-        self.llc= llc
-        self.horizontal =horizontal
-        self.vertical = vertical
+    '''
+    vec3 origin: camera position
+    vec3 lookat: the lookat point
+    vec3 up: the up vector specifying camera orientation
+    float fov: degrees between top and bottom rays
+    float aspect: ratio of width to height
+    '''
+    
+    def __init__(self, origin, lookat, up, fov, aspect):
+        theta = fov*math.pi/180
+        half_height = math.tan(theta/2)
+        half_width = aspect * half_height
         self.origin = origin
+        w = vec3.normalize(vec3.subtract(origin, lookat))
+        u = vec3.normalize(vec3.cross(up, w))
+        v = vec3.cross(w, u)
+        self.horizontal = vec3.scale(u, 2*half_width)
+        self.vertical = vec3.scale(v, 2*half_height)
+        center = vec3.subtract(origin, w)
+        shift = vec3.scale(vec3.add(self.horizontal, self.vertical), 0.5)
+        self.llc = vec3.subtract(center, shift)
 
+    '''
+    float u, v: parametric coordinates for the point the ray points to
+    '''
     def get_ray(self, u, v):
         up = vec3.scale(self.vertical, v)
         right = vec3.scale(self.horizontal, u)
